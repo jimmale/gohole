@@ -21,5 +21,40 @@ ProtectKernelTunables=true
 ProtectSystem=full
 RestrictSUIDSGID=true
 
+
+RestrictAddressFamilies=~AF_PACKET
+PrivateUsers=true
+ProtectClock=true
+ProtectProc=invisible
+CapabilityBoundingSet=~CAP_SETUID CAP_SETGID CAP_SETPCAP
+CapabilityBoundingSet=~CAP_SYS_ADMIN
+CapabilityBoundingSet=~CAP_SYS_PTRACE
+CapabilityBoundingSet=~CAP_CHOWN CAP_FSETID CAP_SETFCAP
+CapabilityBoundingSet=~CAP_NET_ADMIN
+CapabilityBoundingSet=~CAP_KILL CAP_SYS_NICE CAP_SYS_RESOURCE CAP_SYS_BOOT
+CapabilityBoundingSet=~CAP_NET_BROADCAST CAP_NET_RAW
+CapabilityBoundingSet=~CAP_BLOCK_SUSPEND
+CapabilityBoundingSet=~CAP_LEASE
+CapabilityBoundingSet=~CAP_SYS_PACCT
+CapabilityBoundingSet=~CAP_SYS_TTY_CONFIG
+CapabilityBoundingSet=~CAP_LINUX_IMMUTABLE
+CapabilityBoundingSet=~CAP_IPC_LOCK
+CapabilityBoundingSet=~CAP_SYS_CHROOT
+SystemCallFilter=~@cpu-emulation
+SystemCallFilter=~@obsolete
+ProtectKernelLogs=true
+ProtectKernelModules=true
+RestrictRealtime=true
+ProtectHostname=true
+SystemCallFilter=~@clock
+SystemCallFilter=~@debug
+SystemCallFilter=~@module
+SystemCallFilter=~@mount
+SystemCallFilter=~@raw-io
+SystemCallFilter=~@reboot
+SystemCallFilter=~@swap
+SystemCallFilter=~@privileged
+SystemCallFilter=~@resources
+
 [Install]
 WantedBy=multi-user.target
