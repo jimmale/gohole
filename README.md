@@ -1,6 +1,23 @@
 # gohole
 A GoLang DNS-based ad blocker
 
+### Installing
+TODO
+
+### Building from source
+```shell
+go build .
+```
+
+### Configuration
+Here's a good list of BlockLists:
+
+https://github.com/StevenBlack/hosts
+```
+TODO
+```
+
+## Roadmap
 ### Minimum Testable Product
 - [x] Block a hard coded domain with NXDomain. For all others, return a record with 127.0.0.1
 
@@ -28,6 +45,3 @@ A GoLang DNS-based ad blocker
   - Number of Requests served from cache vs Number of fresh requests
   - Duration of DNS responses based off of blocked/cached/resolved
 
-Here's a good list of BlockLists:
-
-https://github.com/StevenBlack/hosts
