@@ -36,7 +36,7 @@ TODO
   - [ ] Debug logging on or off
   - [ ] List blocklists
   - [ ] List individually blocked domains
-  - [ ] List 
+- [ ] DNS over TLS for Android Private DNS
 - [ ] Download blocklists
 - [ ] Configurable allowLists
 - [ ] Cache DNS Requests
