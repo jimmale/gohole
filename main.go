@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"github.com/miekg/dns"
 	log "github.com/sirupsen/logrus"
+	"net"
 	"net/http"
 	"regexp"
 	"strings"
@@ -13,6 +14,9 @@ import (
 const BlockListURL = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts"
 
 func main() {
+
+
+
 
 	log.SetFormatter(&log.TextFormatter{
 		ForceColors:               false,
@@ -37,8 +41,10 @@ func main() {
 	mh := MyHandler{}
 	mh.UpdateBlockList()
 
-	log.Trace("Ready.")
-	log.Fatalf(dns.ListenAndServe("192.168.1.39:53", "udp4", mh).Error())
+	log.Info("Ready.")
+
+	bindAddr := getLocalIP() + ":53"
+	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
 
 }
 
@@ -70,7 +76,7 @@ func Resolve(originalMessage *dns.Msg) *dns.Msg {
 	newMessage := new(dns.Msg)
 	newMessage.SetQuestion(originalMessage.Question[0].Name, originalMessage.Question[0].Qtype)
 	newMessage.RecursionDesired = true
-	r, _, err := c.Exchange(newMessage, "8.8.8.8:53")
+	r, _, err := c.Exchange(newMessage, "1.1.1.1:53")
 
 	if err != nil {
 		log.Errorf("Error making recursive DNS Call: %s", err.Error())
@@ -115,4 +121,21 @@ func (m *MyHandler) UpdateBlockList() {
 			m.blocklist[actualFQDN] = true
 		}
 	}
+}
+
+
+func getLocalIP() string{
+	localIPRegex := regexp.MustCompile(`192\.168\..*`)
+	ifaces, _ := net.Interfaces()
+	for _, i := range ifaces{
+		addrs, _ := i.Addrs()
+		for _, a := range addrs{
+			ip, _, _ := net.ParseCIDR(a.String())
+			if localIPRegex.Match([]byte(ip.To4().String())){
+				log.Printf("Local IP: %s", ip.To4().String())
+				return ip.To4().String()
+			}
+		}
+	}
+	return ""
 }
