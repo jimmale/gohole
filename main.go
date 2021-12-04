@@ -9,7 +9,8 @@ import (
 	"strings"
 )
 
-const BlockListURL = "https://blocklistproject.github.io/Lists/ads.txt"
+//const BlockListURL = "https://blocklistproject.github.io/Lists/ads.txt"
+const BlockListURL = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts"
 
 func main() {
 

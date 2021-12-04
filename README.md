@@ -26,3 +26,7 @@ A GoLang DNS-based ad blocker
 - [ ] Metrics
   - Number of Blocked requests vs Number of Allowed Requests
   - Number of Requests served from cache vs Number of fresh requests
+
+Here's a good list of BlockLists:
+
+https://github.com/StevenBlack/hosts
