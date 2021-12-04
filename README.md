@@ -17,6 +17,11 @@ https://github.com/StevenBlack/hosts
 TODO
 ```
 
+### Running in Docker
+```shell
+TODO
+```
+
 ## Roadmap
 ### Minimum Testable Product
 - [x] Block a hard coded domain with NXDomain. For all others, return a record with 127.0.0.1
