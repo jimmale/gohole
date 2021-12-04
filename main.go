@@ -41,7 +41,7 @@ func main() {
 	mh := MyHandler{}
 	mh.UpdateBlockList()
 
-	log.Info("Ready.")
+	log.Println("Ready.")
 
 	bindAddr := getLocalIP() + ":53"
 	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
