@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 )
 
 //const BlockListURL = "https://blocklistproject.github.io/Lists/ads.txt"
@@ -44,7 +45,11 @@ func main() {
 	log.Println("Ready.")
 
 	bindAddr := getLocalIP() + ":53"
-	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
+	go log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
+
+	time.Sleep(3*time.Second)
+	mh.UpdateBlockList()
+
 
 }
 
