@@ -1,4 +1,34 @@
-[global]
-debug = true
-url = "https://blocklistproject.github.io/Lists/ads.txt"
-#
+debug = false
+trace = true
+noredact = false
+
+
+# List upstream DNS servers here
+upstreamDNS = [
+
+    # Cloudflare DNS
+    "1.1.1.1",
+    "1.0.0.1",
+
+    #Google DNS
+    # "8.8.8.8",
+    # "8.8.4.4",
+]
+
+
+# List blocklists here
+# a good source of lists is here: https://github.com/StevenBlack/hosts
+blocklists = [
+    "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling/hosts",  # adware, malware, fakenews, gambling
+]
+
+# Block individual domains here
+block = [
+    "evilcompany.com",      # Evil Company gives us ads and viruses :(
+    "www.evilcompany.com",
+]
+
+# Allow individual domains here
+allow = [
+    "en.wikipedia.org", # Wikipedia is a great source of information!
+]
