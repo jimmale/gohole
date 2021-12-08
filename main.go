@@ -8,16 +8,12 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
-	"time"
 )
 
 //const BlockListURL = "https://blocklistproject.github.io/Lists/ads.txt"
 const BlockListURL = "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews/hosts"
 
 func main() {
-
-
-
 
 	log.SetFormatter(&log.TextFormatter{
 		ForceColors:               false,
@@ -45,12 +41,8 @@ func main() {
 	log.Println("Ready.")
 
 	bindAddr := getLocalIP() + ":53"
-	go log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
-
-	time.Sleep(3*time.Second)
 	mh.UpdateBlockList()
-
-
+	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
 }
 
 type MyHandler struct {
@@ -99,6 +91,7 @@ func (m *MyHandler) DomainIsBlocked(domain string) bool {
 }
 
 func (m *MyHandler) UpdateBlockList() {
+	log.Println("Updating Blocklist")
 	if m.blocklist == nil {
 		log.Trace("blocklist is nil. Instantiating")
 		m.blocklist = map[string]bool{}
@@ -128,15 +121,14 @@ func (m *MyHandler) UpdateBlockList() {
 	}
 }
 
-
-func getLocalIP() string{
+func getLocalIP() string {
 	localIPRegex := regexp.MustCompile(`192\.168\..*`)
 	ifaces, _ := net.Interfaces()
-	for _, i := range ifaces{
+	for _, i := range ifaces {
 		addrs, _ := i.Addrs()
-		for _, a := range addrs{
+		for _, a := range addrs {
 			ip, _, _ := net.ParseCIDR(a.String())
-			if localIPRegex.Match([]byte(ip.To4().String())){
+			if localIPRegex.Match([]byte(ip.To4().String())) {
 				log.Printf("Local IP: %s", ip.To4().String())
 				return ip.To4().String()
 			}

@@ -1,0 +1,66 @@
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+    # you may remove this if you don't need go generate
+    #    - go generate ./...
+    - gofmt -w ./
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - 6
+archives:
+  - replacements:
+      #      darwin: Darwin
+      #      linux: linux
+      #      windows: Windows
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+nfpms: ## https://goreleaser.com/customization/nfpm/
+  -
+    id: gohole
+    package_name: gohole
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    vendor: Jim Male
+    maintainer: Jim Male
+    homepage: https://github.com/jimmale/gohole
+    description: A GoLang DNS-based ad blocker
+    license: Apache 2.0
+    dependencies:
+      - ca-certificates
+    formats:
+      - deb
+      - rpm
+    version_metadata: git
+    section: default
+    empty_folders:
+      - /var/log/gohole
+    contents:
+      # Basic file that applies to all packagers
+      - src: packaging/gohole.service
+        dst: /etc/systemd/system/gohole.service
+      # Simple config file
+      - src: packaging/exampleconfig.toml
+        dst: /etc/gohole/config.toml
+        type: config
+    scripts:
+      preinstall: "packaging/scripts/preinstall.sh"
+      postinstall: "packaging/scripts/postinstall.sh"
+      preremove: "packaging/scripts/preremove.sh"
+      postremove: "packaging/scripts/postremove.sh"
