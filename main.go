@@ -1,18 +1,14 @@
 package main
 
 import (
-	"bufio"
+	"github.com/jimmale/gohole/dnshandler"
+	"github.com/jimmale/gohole/utils"
 	"github.com/miekg/dns"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
-	"net"
-	"net/http"
 	"os"
-	"regexp"
-	"strings"
 )
-
 
 func main() {
 
@@ -100,7 +96,7 @@ func main() {
 			Required:    false,
 			Hidden:      false,
 			TakesFile:   false,
-		    Value:       defaultDns,
+			Value:       defaultDns,
 			DefaultText: "",
 			HasBeenSet:  false,
 			Destination: nil,
@@ -172,111 +168,17 @@ func mainAction(c *cli.Context) error {
 		}
 	}
 
-	for k, v := range c.StringSlice("block"){
+	for k, v := range c.StringSlice("block") {
 		log.Infof("%d %s", k, v)
 	}
 
-	//mh := MyHandler{}
-	//mh.UpdateBlockList()
-	//
-	//log.Println("Ready.")
-	//
-	//bindAddr := getLocalIP() + ":53"
-	//mh.UpdateBlockList()
-	//log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
+	mh := dnshandler.GoholeHandler{}
+	mh.UpdateBlockList()
+
+	log.Println("Ready.")
+
+	bindAddr := utils.GetLocalIP() + ":53"
+	mh.UpdateBlockList()
+	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
 	return nil
-}
-
-type MyHandler struct {
-	blocklist map[string]bool
-}
-
-func (m MyHandler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
-	msg := new(dns.Msg)
-	msg.SetReply(r)
-	msg.MsgHdr.RecursionAvailable = true
-
-	if m.DomainIsBlocked(r.Question[0].Name) {
-		log.Debugf("%s is blocked", r.Question[0].Name)
-		msg.Rcode = dns.RcodeNameError
-	} else {
-		log.Tracef("%s is not blocked", r.Question[0].Name)
-		msg = Resolve(r)
-	}
-	w.WriteMsg(msg)
-	w.Close()
-}
-
-func Resolve(originalMessage *dns.Msg) *dns.Msg {
-	var output *dns.Msg
-
-	// Make a recursive DNS call
-	c := new(dns.Client)
-	newMessage := new(dns.Msg)
-	newMessage.SetQuestion(originalMessage.Question[0].Name, originalMessage.Question[0].Qtype)
-	newMessage.RecursionDesired = true
-	r, _, err := c.Exchange(newMessage, "1.1.1.1:53")
-
-	if err != nil {
-		log.Errorf("Error making recursive DNS Call: %s", err.Error())
-	}
-
-	output = r
-	r.SetReply(originalMessage)
-
-	return output
-}
-
-func (m *MyHandler) DomainIsBlocked(domain string) bool {
-	_, blocked := m.blocklist[domain]
-	return blocked
-}
-
-func (m *MyHandler) UpdateBlockList() {
-	log.Println("Updating Blocklist")
-	if m.blocklist == nil {
-		log.Trace("blocklist is nil. Instantiating")
-		m.blocklist = map[string]bool{}
-	}
-
-	reg := regexp.MustCompile(`^0\.0\.0\.0 .*`)
-
-	resp, err := http.Get("BlockListURL")
-	if err != nil {
-		log.Errorf("Error fetching blocklist: %s", err.Error())
-		return
-	}
-	defer resp.Body.Close()
-	log.Trace("Downloaded Blocklist. Parsing...")
-
-	sc := bufio.NewScanner(resp.Body)
-
-	for sc.Scan() {
-		line := sc.Text()
-		if reg.Match([]byte(line)) {
-			parts := strings.Split(line, " ")
-
-			// domain names actually have a dot at the end.
-			actualFQDN := parts[1] + "."
-			m.blocklist[actualFQDN] = true
-		}
-	}
-}
-
-func getLocalIP() string {
-	// TODO 127.0.0.53 is probably the only address we shouldn't try binding to.
-
-	localIPRegex := regexp.MustCompile(`192\.168\..*`)
-	ifaces, _ := net.Interfaces()
-	for _, i := range ifaces {
-		addrs, _ := i.Addrs()
-		for _, a := range addrs {
-			ip, _, _ := net.ParseCIDR(a.String())
-			if localIPRegex.Match([]byte(ip.To4().String())) {
-				log.Printf("Local IP: %s", ip.To4().String())
-				return ip.To4().String()
-			}
-		}
-	}
-	return ""
 }
