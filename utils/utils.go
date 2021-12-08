@@ -1,13 +1,10 @@
 package utils
 
 import (
-	"github.com/miekg/dns"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"regexp"
 )
-
-
 
 func GetLocalIP() string {
 	// TODO 127.0.0.53 is probably the only address we shouldn't try binding to.

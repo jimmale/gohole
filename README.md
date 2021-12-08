@@ -72,7 +72,7 @@ goreleaser release --rm-dist --snapshot
 | Library                                                     | License | Purpose                                      |
 | -------                                                     | ------- | -------                                      |
 | [Sirupsen/Logrus](https://github.com/Sirupsen/logrus)       | MIT     | Pretty Logging                               |
-| [urfave/cli/v2]("https://github.com/urfave/cli/v2")         | MIT     | CLI args parsing, configuration file reading |
+| [urfave/cli]("https://github.com/urfave/cli/v2")            | MIT     | CLI args parsing, configuration file reading |
 | [miekg/dns](https://github.com/miekg/dns)                   | BSD-3   | DNS stuff                                    |
 | [ReneKroon/ttlcache](https://github.com/ReneKroon/ttlcache) | MIT     | Caching DNS responses for faster lookup      |
 
@@ -117,3 +117,6 @@ goreleaser release --rm-dist --snapshot
   - Number of Requests served from cache vs Number of fresh requests
   - Duration of DNS responses based off of blocked/cached/resolved
 - [ ] Include license info for dependencies
+- [x] Handle A, AAAA, and other records gracefully
+  - ~~Right now a cached A record could prevent the successful resolution of AAAA, TXT, MX, etc.~~ 
+- [ ] DNSSec
