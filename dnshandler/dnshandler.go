@@ -97,7 +97,7 @@ func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 
 // Resolve resolves a DNS query and returns a result.
 func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
-	log.Tracef("Resolving %s", ghr.redactDomain(r.Question[0].Name))
+	log.Tracef("❓ Resolving %s", ghr.redactDomain(r.Question[0].Name))
 	cacheKey := CacheKey(r)                                 // calculate the cache key (eg "1:example.com." is the key for the A record for example.com)
 	cacheEntry, ttl, _ := ghr.DNSCache.GetWithTTL(cacheKey) // fetch from cache; or load from recursive resolver
 	msg := cacheEntry.(*dns.Msg)                            // cast to the appropriate struct
@@ -157,7 +157,7 @@ func (ghr *GoholeResolver) getExpireCallbackFunction() func(key string, reason t
 		msg := cacheEntry.(*dns.Msg)
 		if len(msg.Answer) > 0 {
 			domain := msg.Answer[0].Header().Name
-			log.Tracef("Entry for %s has expired", ghr.redactDomain(domain))
+			log.Tracef("🗑️ Entry for %s has expired", ghr.redactDomain(domain))
 		}
 	}
 }
@@ -176,7 +176,7 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 		log.Tracef("Could not find %s in cache.", ghr.redactDomain(domain))
 
 		if _, domainIsBlocked := ghr.blockedDomains[domain]; domainIsBlocked {
-			log.Tracef("Domain %s is blocked", ghr.redactDomain(domain))
+			log.Tracef("\U0001F7E5 Domain %s is blocked", ghr.redactDomain(domain))
 			NXDomainMessage := new(dns.Msg)
 			NXDomainMessage.Rcode = dns.RcodeNameError // NXDomain error
 			NXDomainMessage.RecursionAvailable = true
@@ -185,7 +185,7 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 			return NXDomainMessage, infiniteDuration, nil
 		}
 
-		log.Tracef("Domain %s is not blocked", ghr.redactDomain(domain))
+		log.Tracef("\U0001F7E9 Domain %s is not blocked", ghr.redactDomain(domain))
 
 		upstreamResponse := recursivelyResolve(Qtypeuint16, domain)
 
@@ -197,7 +197,7 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 		}
 
 
-		log.Tracef("Entry for %s expires at %s", ghr.redactDomain(domain), time.Now().Add(newTTL).Format("2006.01.02 15:04:05.000 Z0700"))
+		log.Tracef("⏰ Entry for %s expires at %s", ghr.redactDomain(domain), time.Now().Add(newTTL).Format("2006.01.02 15:04:05.000 Z0700"))
 		return upstreamResponse, newTTL, nil
 	}
 }
