@@ -15,6 +15,8 @@ TODO
 
 ### Configuration
 ```toml
+## /etc/gohole/gohole.toml
+
 debug = true      # give some debug logging
 trace = false     # give verbose debug logging
 noredact = false  # set to "true" to show domain names in the logs
