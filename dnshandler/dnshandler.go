@@ -51,6 +51,7 @@ func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 	output.blockedDomains = make(map[string]interface{})
 	output.DNSCache = ttlcache.NewCache()
 	output.DNSCache.SetLoaderFunction(output.getLoaderFunction())
+	output.DNSCache.SetExpirationReasonCallback(output.getExpireCallbackFunction())
 
 	if c != nil {
 		// Set the upstream DNS
@@ -128,6 +129,16 @@ func (ghr *GoholeResolver) ApplyBlocklist(blocklistContent []byte) {
 	}
 }
 
+// getExpireCallbackFunction gets the function that will be called when a cache item expires
+func (ghr *GoholeResolver) getExpireCallbackFunction() func(key string, reason ttlcache.EvictionReason, value interface{}) {
+	return func(key string, reason ttlcache.EvictionReason, cacheEntry interface{}) {
+		msg := cacheEntry.(*dns.Msg)
+		domain := msg.Answer[0].Header().Name
+		log.Tracef("Entry for %s has expired", ghr.redactDomain(domain))
+	}
+}
+
+// getLoaderFunction gets the function that will be called in the event of a cache miss
 func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, ttl time.Duration, err error) {
 
 	// This loader function is a function that is called on a cache miss in order to check to see if the domain is
@@ -157,7 +168,6 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 		log.Tracef("Entry for %s expires at %s", ghr.redactDomain(domain), time.Now().Add(newTTL).Format("2006.01.02 15:04:05.000 Z0700"))
 		return upstreamResponse, newTTL, nil
 	}
-
 }
 
 // recursivelyResolve makes an upstream DNS query.
