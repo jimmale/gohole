@@ -173,7 +173,7 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 		Qtypeuint16 := uint16(Qtypeint)
 		domain := parts[1]
 
-		log.Tracef("Could not find %s in cache.", ghr.redactDomain(domain))
+		log.Tracef("❌ Could not find %s in cache.", ghr.redactDomain(domain))
 
 		if _, domainIsBlocked := ghr.blockedDomains[domain]; domainIsBlocked {
 			log.Tracef("\U0001F7E5 Domain %s is blocked", ghr.redactDomain(domain))
