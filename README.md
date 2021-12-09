@@ -58,6 +58,7 @@ GLOBAL OPTIONS:
 
 ### Building from source
 ```shell
+go test ./...
 go build .
 ```
 
@@ -117,7 +118,7 @@ goreleaser release --rm-dist --snapshot
 - [ ] Github Builds
 - [ ] Metrics
   - [ ] Number of Blocked requests vs Number of Allowed Requests
-  - [ ] Number of Requests served from cache vs Number of fresh requests
+  - [ ] Cache hits vs cache misses (ttlcache provides this)
   - [ ] Duration of DNS responses based off of blocked/cached/resolved
   - [ ] Cache size (ignoring blocked hosts)
 - [ ] Include license info for dependencies
