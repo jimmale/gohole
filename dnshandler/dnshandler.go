@@ -186,7 +186,14 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 		log.Tracef("Domain %s is not blocked", ghr.redactDomain(domain))
 
 		upstreamResponse := recursivelyResolve(Qtypeuint16, domain)
-		newTTL := time.Duration(upstreamResponse.Answer[0].Header().Ttl)*time.Second - 1*time.Second
+
+		var newTTL time.Duration
+		if len(upstreamResponse.Answer) > 0 {
+			newTTL = time.Duration(upstreamResponse.Answer[0].Header().Ttl)*time.Second - 1*time.Second
+		} else {
+			newTTL = 3 * time.Second
+		}
+
 
 		log.Tracef("Entry for %s expires at %s", ghr.redactDomain(domain), time.Now().Add(newTTL).Format("2006.01.02 15:04:05.000 Z0700"))
 		return upstreamResponse, newTTL, nil
