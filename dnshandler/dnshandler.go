@@ -67,10 +67,10 @@ func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
 	cacheEntry, _ := ghr.DNSCache.Get(cacheKey) // fetch from cache; or load from recursive resolver
 	msg := cacheEntry.(*dns.Msg)                // cast to the appropriate struct
 
-	myRcode := msg.Rcode // save the Rcode because the dns.Msg.SetReply method sets it to 0 for some reason
+	savedRcode := msg.Rcode // save the Rcode because the dns.Msg.SetReply method sets it to 0 for some reason
 
 	msg.SetReply(r)
-	msg.Rcode = myRcode // restore the Rcode
+	msg.Rcode = savedRcode // restore the Rcode
 	msg.MsgHdr.RecursionAvailable = true
 	msg.MsgHdr.Authoritative = true
 
@@ -102,14 +102,15 @@ func loaderFunction(key string) (data interface{}, ttl time.Duration, err error)
 	Qtypeuint16 := uint16(Qtypeint)
 	domain := parts[1]
 
-	upstreamResponse := newRecursiveResolve(Qtypeuint16, domain)
+	upstreamResponse := recursivelyResolve(Qtypeuint16, domain)
 
 	newTTL := time.Duration(upstreamResponse.Answer[0].Header().Ttl)*time.Second - 1*time.Second
 
 	return upstreamResponse, newTTL, nil
 }
 
-func newRecursiveResolve(recordType uint16, domain string) *dns.Msg {
+// recursivelyResolve makes an upstream DNS query.
+func recursivelyResolve(recordType uint16, domain string) *dns.Msg {
 	query := new(dns.Msg)
 	query.SetQuestion(domain, recordType)
 	query.RecursionDesired = true
@@ -123,26 +124,6 @@ func newRecursiveResolve(recordType uint16, domain string) *dns.Msg {
 
 	return resp
 }
-
-//// recursivelyResolve fetches the appropriate record from the upstream DNS server
-//func (ghr *GoholeResolver) recursivelyResolve(originalMessage *dns.Msg) *dns.Msg {
-//	var output *dns.Msg
-//
-//	// Make a recursive DNS call
-//	c := new(dns.Client) // TODO could probably reuse this
-//	newMessage := new(dns.Msg)
-//	newMessage.SetQuestion(originalMessage.Question[0].Name, originalMessage.Question[0].Qtype)
-//	newMessage.RecursionDesired = true
-//	r, _, err := c.Exchange(newMessage, "1.1.1.1:53") // TODO use configured DNS server
-//
-//	if err != nil {
-//		log.Errorf("Error making recursive DNS Call: %s", err.Error())
-//	}
-//
-//	output = r
-//	r.SetReply(originalMessage)
-//	return output
-//}
 
 //func (ghh *GoholeHandler) UpdateBlockList() {
 //	log.Println("Updating Blocklist")

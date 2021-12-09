@@ -132,5 +132,14 @@ func TestResolveFromCache(t *testing.T) {
 
 // TestNewGoholeResolver tests to make sure that a new GoHole resolver is configured correctly
 func TestNewGoholeResolver(t *testing.T) {
-	//TODO
+	// Action
+	myResolver := NewGoholeResolver(nil) // TODO try this with a value for c
+
+	// Postcondition
+	if myResolver == nil{
+		t.Errorf("Failed to return a resolver")
+	}
+	if myResolver.DNSCache == nil {
+		t.Errorf("Resolver returned with nil cache")
+	}
 }

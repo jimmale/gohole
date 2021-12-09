@@ -97,14 +97,18 @@ goreleaser release --rm-dist --snapshot
 - [ ] Download blocklists
   - [ ] Use configured upstream DNS to make these requests 
   - [ ] Set a User Agent
-- [ ] Cache DNS Requests
+- [x] Cache DNS Requests
   - [ ] Cache eviction
 - [ ] Refresh blocklists periodically
 - [ ] systemd unit
   - [ ] PID File
-  - [ ] Reload / SIGHUP handler
   - [ ] dbus liveness check
   - [ ] journald integration?
+- [ ] Reload / SIGHUP handler
+  - Reload configuration
+  - Reload TLS certs
+  - Purge DNS cache
+  - Reload Blocklists
 - [ ] deb package
   - [ ] cacert dependency
   - [ ] systemd recommendation
