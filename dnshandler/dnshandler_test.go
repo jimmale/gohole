@@ -72,7 +72,7 @@ func TestGoHoleResolver_DontConfuseRecordTypes(t *testing.T) {
 }
 
 // TestRecursivelyResolve tests to make sure that a cache miss results in a recursive resolution
-func TestRecursivelyResolve(t *testing.T) {
+func TestGoholeResolver_RecursivelyResolve(t *testing.T) {
 	QueryForARecord := new(dns.Msg)
 	QueryForARecord.Id = dns.Id()
 	QueryForARecord.Question = make([]dns.Question, 1)
@@ -96,7 +96,7 @@ func TestRecursivelyResolve(t *testing.T) {
 
 // TestResolveFromCache tests to make sure that a cache resolution results in the correct DNS exchange id being set on
 // the second DNS response
-func TestResolveFromCache(t *testing.T) {
+func TestGoholeResolver_ResolveFromCache(t *testing.T) {
 	FirstQueryForARecord := new(dns.Msg)
 	FirstQueryForARecord.Id = 42 // DNS Exchange ID
 	FirstQueryForARecord.Question = make([]dns.Question, 1)
@@ -131,15 +131,45 @@ func TestResolveFromCache(t *testing.T) {
 }
 
 // TestNewGoholeResolver tests to make sure that a new GoHole resolver is configured correctly
-func TestNewGoholeResolver(t *testing.T) {
+func TestGoholeResolver_NewGoholeResolver(t *testing.T) {
 	// Action
 	myResolver := NewGoholeResolver(nil) // TODO try this with a value for c
 
 	// Postcondition
-	if myResolver == nil{
+	if myResolver == nil {
 		t.Errorf("Failed to return a resolver")
 	}
 	if myResolver.DNSCache == nil {
 		t.Errorf("Resolver returned with nil cache")
+	}
+}
+
+func TestGoholeResolver_ApplyBlocklist(t *testing.T) {
+	// Setup
+	blocklistContent :=
+		`
+		# example comment
+		0.0.0.0 example.com
+		`
+
+	exampleQuery := new(dns.Msg)
+	exampleQuery.Id = dns.Id()
+	exampleQuery.Question = make([]dns.Question, 1)
+	exampleQuery.Question[0] = dns.Question{
+		Name:   "example.com.",
+		Qtype:  dns.TypeA,
+		Qclass: dns.ClassINET,
+	}
+
+	myResolver := NewGoholeResolver(nil)
+
+	// Action
+	myResolver.ApplyBlocklist([]byte(blocklistContent))
+
+	// Postcondition
+	response := myResolver.Resolve(exampleQuery)
+
+	if response.Rcode != dns.RcodeNameError {
+		t.Error("applying a blocklist did not result in the cache returning NXDomain")
 	}
 }

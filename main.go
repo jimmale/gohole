@@ -1,9 +1,13 @@
 package main
 
 import (
+	"github.com/jimmale/gohole/dnshandler"
+	"github.com/jimmale/gohole/utils"
+	"github.com/miekg/dns"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	_ "net/http/pprof"
 	"os"
 )
 
@@ -165,19 +169,13 @@ func mainAction(c *cli.Context) error {
 		}
 	}
 
-	for k, v := range c.StringSlice("block") {
-		log.Infof("%d %s", k, v)
-	}
+	myHandler := dnshandler.GoholeHandler{}
+	myResolver := dnshandler.NewGoholeResolver(c)
+	myHandler.Resolver = myResolver
 
-	//mh := dnshandler.GoholeHandler{}
-	//mh.UpdateBlockList()
-	//
-	//log.Println("Ready.")
-	//
-	//bindAddr := utils.GetLocalIP() + ":53"
-	//mh.UpdateBlockList()
-	//log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
-	//return nil
+	log.Println("Ready.")
 
+	bindAddr := utils.GetLocalIP() + ":53"
+	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", myHandler).Error())
 	return nil
 }

@@ -94,9 +94,9 @@ goreleaser release --rm-dist --snapshot
   - [ ] List of interfaces to bind to
 - [ ] DNS over TLS for Android Private DNS
   - [ ] watch (inotify?) for updated TLS certs, automatically reload
-- [ ] Download blocklists
-  - [ ] Use configured upstream DNS to make these requests 
-  - [ ] Set a User Agent
+- [x] Download blocklists
+  - [x] Use configured upstream DNS to make these requests 
+  - [x] Set a User Agent
 - [x] Cache DNS Requests
   - [ ] Cache eviction
 - [ ] Refresh blocklists periodically

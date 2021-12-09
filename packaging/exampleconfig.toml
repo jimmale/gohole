@@ -1,7 +1,6 @@
 debug = false
 trace = true
-noredact = false
-
+noredact = true
 
 # List upstream DNS servers here
 upstreamDNS = [
