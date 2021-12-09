@@ -82,33 +82,32 @@ goreleaser release --rm-dist --snapshot
 - Systemd is recommended, but you can absolutely run it without.
 
 ## TODO
-- [ ] Configuration File
-  - [x] Debug logging on or off
-  - [x] List blocklists
-  - [x] Block individual domains
-  - [x] Allow individual domains
-  - [ ] Allowlist regex?
-  - [x] Upstream DNS servers
-  - [ ] Easy blocklist set up (eg use Steve Black's list by default)
-  - [ ] Easy configuration with env vars & [Steven Black's lists](https://github.com/StevenBlack/hosts)
-  - [ ] List of interfaces to bind to
+- [ ] Use configured upstream DNS servers
+  - [x] Config file entry
+  - [ ] Actually use them
+- [ ] Bind to interfaces better
+  - [ ] Optionally List in config file
+  - [ ] Bind to all by default
+  - [ ] Don't bind to 127.0.0.53 to prevent clashing with systemd
+- [ ] Parse hosts file format better
+- [ ] move DNS client to a place where it can be reused
 - [ ] DNS over TLS for Android Private DNS
   - [ ] watch (inotify?) for updated TLS certs, automatically reload
 - [x] Download blocklists
   - [x] Use configured upstream DNS to make these requests 
   - [x] Set a User Agent
 - [x] Cache DNS Requests
-  - [ ] Cache eviction
+  - [x] Cache eviction
 - [ ] Refresh blocklists periodically
 - [ ] systemd unit
   - [ ] PID File
   - [ ] dbus liveness check
   - [ ] journald integration?
 - [ ] Reload / SIGHUP handler
-  - Reload configuration
-  - Reload TLS certs
-  - Purge DNS cache
-  - Reload Blocklists
+  - [ ] Reload configuration
+  - [ ] Reload TLS certs
+  - [ ] Purge DNS cache
+  - [ ] Reload Blocklists
 - [ ] deb package
   - [ ] cacert dependency
   - [ ] systemd recommendation
@@ -117,10 +116,15 @@ goreleaser release --rm-dist --snapshot
   - [ ] systemd recommendation
 - [ ] Github Builds
 - [ ] Metrics
-  - Number of Blocked requests vs Number of Allowed Requests
-  - Number of Requests served from cache vs Number of fresh requests
-  - Duration of DNS responses based off of blocked/cached/resolved
+  - [ ] Number of Blocked requests vs Number of Allowed Requests
+  - [ ] Number of Requests served from cache vs Number of fresh requests
+  - [ ] Duration of DNS responses based off of blocked/cached/resolved
+  - [ ] Cache size (ignoring blocked hosts)
 - [ ] Include license info for dependencies
 - [x] Handle A, AAAA, and other records gracefully
   - ~~Right now a cached A record could prevent the successful resolution of AAAA, TXT, MX, etc.~~ 
 - [ ] DNSSec
+  - [ ] Validation
+  - [ ] Forwarding
+- [ ] Easy blocklist set up (eg use Steve Black's list by default)
+- [ ] Easy configuration with env vars & [Steven Black's lists](https://github.com/StevenBlack/hosts)
