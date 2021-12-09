@@ -173,3 +173,18 @@ func TestGoholeResolver_ApplyBlocklist(t *testing.T) {
 		t.Error("applying a blocklist did not result in the cache returning NXDomain")
 	}
 }
+
+func TestGoholeResolver_AllowDomain(t *testing.T) {
+	// Setup
+	myResolver := NewGoholeResolver(nil)
+	myResolver.BlockDomain("example.com")
+
+	// Action
+	myResolver.AllowDomain("example.com")
+
+	// Postcondition
+	_, exists := myResolver.blockedDomains["example.com."]
+	if exists{
+		t.Errorf("A domain on the whitelist was still blocked")
+	}
+}

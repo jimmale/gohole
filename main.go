@@ -89,6 +89,21 @@ func main() {
 		}),
 
 		altsrc.NewStringSliceFlag(&cli.StringSliceFlag{
+			Name:        "allow",
+			Aliases:     nil,
+			Usage:       "allow individual domains",
+			EnvVars:     []string{"GOHOLE_ALLOW"},
+			FilePath:    "",
+			Required:    false,
+			Hidden:      false,
+			TakesFile:   false,
+			Value:       nil,
+			DefaultText: "",
+			HasBeenSet:  false,
+			Destination: nil,
+		}),
+
+		altsrc.NewStringSliceFlag(&cli.StringSliceFlag{
 			Name:        "upstreamDNS",
 			Aliases:     nil,
 			Usage:       "list upstream DNS servers to use",

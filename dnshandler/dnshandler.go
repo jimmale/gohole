@@ -85,7 +85,10 @@ func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 		log.Debugf("%d domains blocked individually", len(c.StringSlice("block")))
 
 		// Unblock all individual domains
-		// TODO
+		for _, v := range c.StringSlice("allow") {
+			output.AllowDomain(v)
+		}
+		log.Debugf("%d domains allowed individually", len(c.StringSlice("allow")))
 
 		output.redactDomains = !c.Bool("noredact")
 	}
@@ -117,6 +120,11 @@ func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
 // BlockDomain blocks a domain in the Resolver. All queries for that domain will return NXDomain.
 func (ghr *GoholeResolver) BlockDomain(domain string) {
 	ghr.blockedDomains[domain+"."] = true
+}
+
+// AllowDomain removes a domain from the blocklist.
+func (ghr *GoholeResolver) AllowDomain(domain string) {
+	delete(ghr.blockedDomains, domain+".")
 }
 
 // ApplyBlocklist applies the block list content to the resolver. the content must be in hosts file format
