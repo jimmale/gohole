@@ -48,10 +48,16 @@ type GoholeResolver struct {
 // NewGoholeResolver sets up a new Resolver
 func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 	output := GoholeResolver{}
+
+	log.Debugf("Creating GoholeResolver at %p", &output)
+
 	output.blockedDomains = make(map[string]interface{})
 	output.DNSCache = ttlcache.NewCache()
 	output.DNSCache.SetLoaderFunction(output.getLoaderFunction())
 	output.DNSCache.SetExpirationReasonCallback(output.getExpireCallbackFunction())
+
+	// Make the cache return the _remaining_ ttl instead of the original ttl
+	output.DNSCache.SkipTTLExtensionOnHit(true)
 
 	if c != nil {
 		// Set the upstream DNS
@@ -70,10 +76,13 @@ func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 			output.ApplyBlocklist(blockListContent)
 		}
 
+		log.Debugf("%d domains blocked from blocklists", len(output.blockedDomains))
+
 		// Block all individual domains
 		for _, v := range c.StringSlice("block") {
 			output.BlockDomain(v)
 		}
+		log.Debugf("%d domains blocked individually", len(c.StringSlice("block")))
 
 		// Unblock all individual domains
 		// TODO
@@ -85,10 +94,10 @@ func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 
 // Resolve resolves a DNS query and returns a result.
 func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
-	log.Tracef("Resolving %s", r.Question[0].Name)
-	cacheKey := CacheKey(r)                     // calculate the cache key (eg "1:example.com." is the key for the A record for example.com)
-	cacheEntry, _ := ghr.DNSCache.Get(cacheKey) // fetch from cache; or load from recursive resolver
-	msg := cacheEntry.(*dns.Msg)                // cast to the appropriate struct
+	log.Tracef("Resolving %s", ghr.redactDomain(r.Question[0].Name))
+	cacheKey := CacheKey(r)                                 // calculate the cache key (eg "1:example.com." is the key for the A record for example.com)
+	cacheEntry, ttl, _ := ghr.DNSCache.GetWithTTL(cacheKey) // fetch from cache; or load from recursive resolver
+	msg := cacheEntry.(*dns.Msg)                            // cast to the appropriate struct
 
 	savedRcode := msg.Rcode // save the Rcode because the dns.Msg.SetReply method sets it to 0 for some reason
 
@@ -96,6 +105,11 @@ func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
 	msg.Rcode = savedRcode // restore the Rcode
 	msg.MsgHdr.RecursionAvailable = true
 	msg.MsgHdr.Authoritative = true
+
+	// the TTL of the message needs to be set to the actual expiration time
+	if len(msg.Answer) > 0 {
+		msg.Answer[0].Header().Ttl = uint32(ttl.Truncate(time.Second).Seconds())
+	}
 
 	return msg
 }
@@ -157,6 +171,7 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 			NXDomainMessage.Rcode = dns.RcodeNameError // NXDomain error
 			NXDomainMessage.RecursionAvailable = true
 			NXDomainMessage.Authoritative = true
+
 			return NXDomainMessage, infiniteDuration, nil
 		}
 
