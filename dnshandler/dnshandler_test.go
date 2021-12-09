@@ -184,7 +184,7 @@ func TestGoholeResolver_AllowDomain(t *testing.T) {
 
 	// Postcondition
 	_, exists := myResolver.blockedDomains["example.com."]
-	if exists{
+	if exists {
 		t.Errorf("A domain on the whitelist was still blocked")
 	}
 }

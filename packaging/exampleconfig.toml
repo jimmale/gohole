@@ -1,10 +1,9 @@
-debug = true
-trace = false
-noredact = false
+debug = true      # give some debug logging
+trace = false     # give verbose debug logging
+noredact = false  # set to "true" to show domain names in the logs
 
-# List upstream DNS servers here
+# Set your upstream DNS servers here
 upstreamDNS = [
-
     # Cloudflare DNS
     "1.1.1.1",
     "1.0.0.1",
@@ -13,7 +12,6 @@ upstreamDNS = [
     # "8.8.8.8",
     # "8.8.4.4",
 ]
-
 
 # List blocklists here
 # a good source of lists is here: https://github.com/StevenBlack/hosts

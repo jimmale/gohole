@@ -14,11 +14,38 @@ A GoLang DNS-based ad blocker
 TODO
 
 ### Configuration
-Here's a good list of BlockLists:
+```toml
+debug = true      # give some debug logging
+trace = false     # give verbose debug logging
+noredact = false  # set to "true" to show domain names in the logs
 
-https://github.com/StevenBlack/hosts
-```
-TODO
+# Set your upstream DNS servers here
+upstreamDNS = [
+    # Cloudflare DNS
+    "1.1.1.1",
+    "1.0.0.1",
+
+    #Google DNS
+    # "8.8.8.8",
+    # "8.8.4.4",
+]
+
+# List blocklists here
+# a good source of lists is here: https://github.com/StevenBlack/hosts
+blocklists = [
+    "https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/fakenews-gambling/hosts",  # adware, malware, fakenews, gambling
+]
+
+# Block individual domains here
+block = [
+    "evilcompany.com",      # Evil Company gives us ads and viruses :(
+    "www.evilcompany.com",
+]
+
+# Allow individual domains here
+allow = [
+    "en.wikipedia.org", # Wikipedia is a great source of information!
+]
 ```
 
 ### Running as a service
@@ -63,7 +90,7 @@ go build .
 ```
 
 ### Build packages
-```
+```shell
 goreleaser release --rm-dist --snapshot
 ```
 
@@ -83,6 +110,8 @@ goreleaser release --rm-dist --snapshot
 - Systemd is recommended, but you can absolutely run it without.
 
 ## TODO
+- [ ] Embed build information
+- [ ] Embed dependency licenses
 - [ ] Use configured upstream DNS servers
   - [x] Config file entry
   - [ ] Actually use them
