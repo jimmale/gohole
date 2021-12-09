@@ -6,6 +6,9 @@ import (
 	"github.com/miekg/dns"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	"strconv"
+	"strings"
+	"time"
 )
 
 // GoholeHandler is kind of a proxy to the GoholeResolver
@@ -18,8 +21,8 @@ type GoholeHandler struct {
 // ServeDNS is the interface we need to satisfy for miekg/dns
 func (ghh GoholeHandler) ServeDNS(w dns.ResponseWriter, r *dns.Msg) {
 	msg := ghh.Resolver.Resolve(r)
-	w.WriteMsg(msg)
-	w.Close()
+	_ = w.WriteMsg(msg)
+	_ = w.Close()
 }
 
 // GoholeResolver is the cache and blocking mechanism
@@ -35,75 +38,111 @@ type GoholeResolver struct {
 	DNSCache *ttlcache.Cache
 }
 
+// NewGoholeResolver sets up a new Resolver
 func NewGoholeResolver(c *cli.Context) *GoholeResolver {
 	output := GoholeResolver{}
 
 	output.DNSCache = ttlcache.NewCache()
+	output.DNSCache.SetLoaderFunction(loaderFunction)
 
-	for _, v := range c.StringSlice("block") {
-		output.BlockDomain(v)
+	if c != nil {
+		// Block all domains on the blocklists
+		// TODO
+
+		// Block all individual domains
+		for _, v := range c.StringSlice("block") {
+			output.BlockDomain(v)
+		}
+
+		// Unblock all individual domains
+		// TODO
+
 	}
-
 	return &output
 }
 
+// Resolve resolves a DNS query and returns a result.
 func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
+	cacheKey := CacheKey(r)                     // calculate the cache key (eg "1:example.com." is the key for the A record for example.com)
+	cacheEntry, _ := ghr.DNSCache.Get(cacheKey) // fetch from cache; or load from recursive resolver
+	msg := cacheEntry.(*dns.Msg)                // cast to the appropriate struct
 
-	cacheKey := CacheKey(r)
+	myRcode := msg.Rcode // save the Rcode because the dns.Msg.SetReply method sets it to 0 for some reason
 
-	cacheEntry, err := ghr.DNSCache.Get(cacheKey)
-	if err != nil {
-		msg := new(dns.Msg)
-		msg.SetReply(r)
-		msg.Rcode = dns.RcodeNameError // NXDomain
-		log.Tracef("Couldn't find something in the cache.")
-		return msg
-
-	}
-
-	msg := cacheEntry.(*dns.Msg)
-	myRcode := msg.Rcode
-
-	msg.SetReply(r) // SetReply resets the
-	msg.Rcode = myRcode
-
+	msg.SetReply(r)
+	msg.Rcode = myRcode // restore the Rcode
 	msg.MsgHdr.RecursionAvailable = true
 	msg.MsgHdr.Authoritative = true
 
-	// TODO
 	return msg
 }
 
-func (ghr *GoholeResolver) recursivelyResolve(originalMessage *dns.Msg) *dns.Msg {
-	var output *dns.Msg
-
-	// Make a recursive DNS call
-	c := new(dns.Client)
-	newMessage := new(dns.Msg)
-	newMessage.SetQuestion(originalMessage.Question[0].Name, originalMessage.Question[0].Qtype)
-	newMessage.RecursionDesired = true
-	r, _, err := c.Exchange(newMessage, "1.1.1.1:53") // TODO use configured DNS server
-
-	if err != nil {
-		log.Errorf("Error making recursive DNS Call: %s", err.Error())
-	}
-
-	output = r
-	r.SetReply(originalMessage)
-
-	return output
-}
-
+// BlockDomain blocks a domain in the Resolver. All queries for that domain will return NXDomain.
 func (ghr *GoholeResolver) BlockDomain(domain string) {
 	NXDomainMessage := new(dns.Msg)
 	NXDomainMessage.Rcode = dns.RcodeNameError // NXDomain error
 	NXDomainMessage.RecursionAvailable = true
 	NXDomainMessage.Authoritative = true
-	domainWithDot := domain + "."
 
 	log.Tracef("Adding %s to DNS Cache as blocked", domain)
-	ghr.DNSCache.Set(domainWithDot, NXDomainMessage)
+
+	for i := 0; i <= 256; i++ {
+		cacheKey := fmt.Sprintf("%d:%s.", i, domain)
+		_ = ghr.DNSCache.Set(cacheKey, NXDomainMessage)
+	}
 }
+
+// loaderFunction is a function that is called on a cache miss in order to initiate a recursive resolution and store the
+// response in the cache
+func loaderFunction(key string) (data interface{}, ttl time.Duration, err error) {
+	log.Tracef("Could not find domain in cache. Loading from upstream...")
+
+	parts := strings.Split(key, ":")
+	Qtypeint, _ := strconv.Atoi(parts[0])
+	Qtypeuint16 := uint16(Qtypeint)
+	domain := parts[1]
+
+	upstreamResponse := newRecursiveResolve(Qtypeuint16, domain)
+
+	newTTL := time.Duration(upstreamResponse.Answer[0].Header().Ttl)*time.Second - 1*time.Second
+
+	return upstreamResponse, newTTL, nil
+}
+
+func newRecursiveResolve(recordType uint16, domain string) *dns.Msg {
+	query := new(dns.Msg)
+	query.SetQuestion(domain, recordType)
+	query.RecursionDesired = true
+	query.Id = dns.Id()
+
+	c := new(dns.Client)                            // TODO could probably put this in the ghr to reuse
+	resp, _, err := c.Exchange(query, "1.1.1.1:53") // TODO use configured DNS server
+	if err != nil {
+		log.Errorf("Error making recursive DNS Call: %s", err.Error())
+	}
+
+	return resp
+}
+
+//// recursivelyResolve fetches the appropriate record from the upstream DNS server
+//func (ghr *GoholeResolver) recursivelyResolve(originalMessage *dns.Msg) *dns.Msg {
+//	var output *dns.Msg
+//
+//	// Make a recursive DNS call
+//	c := new(dns.Client) // TODO could probably reuse this
+//	newMessage := new(dns.Msg)
+//	newMessage.SetQuestion(originalMessage.Question[0].Name, originalMessage.Question[0].Qtype)
+//	newMessage.RecursionDesired = true
+//	r, _, err := c.Exchange(newMessage, "1.1.1.1:53") // TODO use configured DNS server
+//
+//	if err != nil {
+//		log.Errorf("Error making recursive DNS Call: %s", err.Error())
+//	}
+//
+//	output = r
+//	r.SetReply(originalMessage)
+//	return output
+//}
 
 //func (ghh *GoholeHandler) UpdateBlockList() {
 //	log.Println("Updating Blocklist")
@@ -136,6 +175,7 @@ func (ghr *GoholeResolver) BlockDomain(domain string) {
 //	}
 //}
 
+// CacheKey generates a string key on the tuple (DNS Record Type, Domain Name)
 func CacheKey(msg *dns.Msg) string {
 	var output string
 	if len(msg.Answer) != 0 {
