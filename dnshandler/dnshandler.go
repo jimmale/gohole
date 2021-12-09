@@ -114,6 +114,8 @@ func (ghr *GoholeResolver) Resolve(r *dns.Msg) *dns.Msg {
 		msg.Answer[0].Header().Ttl = uint32(ttl.Truncate(time.Second).Seconds())
 	}
 
+	ghr.reportStats()
+
 	return msg
 }
 
@@ -159,6 +161,7 @@ func (ghr *GoholeResolver) getExpireCallbackFunction() func(key string, reason t
 			domain := msg.Answer[0].Header().Name
 			log.Tracef("🗑️ Entry for %s has expired", ghr.redactDomain(domain))
 		}
+		ghr.reportStats()
 	}
 }
 
@@ -287,4 +290,13 @@ func (ghr *GoholeResolver) redactDomain(domain string) string {
 	} else {
 		return domain
 	}
+}
+
+func (ghr *GoholeResolver) reportStats(){
+	metrics := ghr.DNSCache.GetMetrics()
+	hits := float64(metrics.Hits)
+	misses := float64(metrics.Misses)
+	hitRate := hits / (hits + misses) * 100.0
+
+	log.Tracef("📊 %d cached records. Hit rate: %.1f", ghr.DNSCache.Count(), hitRate)
 }
