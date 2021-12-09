@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
+	_ "net/http/pprof"
 	"os"
 )
 
@@ -77,6 +78,21 @@ func main() {
 			Aliases:     nil,
 			Usage:       "block individual domains",
 			EnvVars:     []string{"GOHOLE_BLOCK"},
+			FilePath:    "",
+			Required:    false,
+			Hidden:      false,
+			TakesFile:   false,
+			Value:       nil,
+			DefaultText: "",
+			HasBeenSet:  false,
+			Destination: nil,
+		}),
+
+		altsrc.NewStringSliceFlag(&cli.StringSliceFlag{
+			Name:        "allow",
+			Aliases:     nil,
+			Usage:       "allow individual domains",
+			EnvVars:     []string{"GOHOLE_ALLOW"},
 			FilePath:    "",
 			Required:    false,
 			Hidden:      false,
@@ -168,17 +184,13 @@ func mainAction(c *cli.Context) error {
 		}
 	}
 
-	for k, v := range c.StringSlice("block") {
-		log.Infof("%d %s", k, v)
-	}
-
-	mh := dnshandler.GoholeHandler{}
-	mh.UpdateBlockList()
+	myHandler := dnshandler.GoholeHandler{}
+	myResolver := dnshandler.NewGoholeResolver(c)
+	myHandler.Resolver = myResolver
 
 	log.Println("Ready.")
 
 	bindAddr := utils.GetLocalIP() + ":53"
-	mh.UpdateBlockList()
-	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", mh).Error())
+	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", myHandler).Error())
 	return nil
 }
