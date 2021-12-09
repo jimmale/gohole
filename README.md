@@ -73,11 +73,15 @@ COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --debug         debug logging (default: false) [$GOHOLE_DEBUG]
-   --trace         trace logging (default: false) [$GOHOLE_TRACE]
-   --noredact      do not redact domain names in logs (default: false) [$GOHOLE_NOREDACT]
-   --config value  use a configuration file (default: "/etc/gohole/gohole.toml") [$GOHOLE_CONFIG_FILE]
-   --help, -h      show help (default: false)
+   --debug                 debug logging (default: false) [$GOHOLE_DEBUG]
+   --trace, -v, --verbose  trace logging (default: false) [$GOHOLE_TRACE]
+   --noredact              do not redact domain names in logs (default: false) [$GOHOLE_NOREDACT]
+   --blocklists value      use blocklists (host file format) [$GOHOLE_BLOCKLIST]
+   --block value           block individual domains [$GOHOLE_BLOCK]
+   --allow value           allow individual domains [$GOHOLE_ALLOW]
+   --upstreamDNS value     list upstream DNS servers to use (default: "1.1.1.1", "1.0.0.1") [$GOHOLE_UPSTREAMDNS]
+   --config value          use a configuration file (default: "/etc/gohole/gohole.toml") [$GOHOLE_CONFIG_FILE]
+   --help, -h              show help (default: false)
 ```
 
 ## Building
