@@ -155,8 +155,10 @@ func (ghr *GoholeResolver) ApplyBlocklist(blocklistContent []byte) {
 func (ghr *GoholeResolver) getExpireCallbackFunction() func(key string, reason ttlcache.EvictionReason, value interface{}) {
 	return func(key string, reason ttlcache.EvictionReason, cacheEntry interface{}) {
 		msg := cacheEntry.(*dns.Msg)
-		domain := msg.Answer[0].Header().Name
-		log.Tracef("Entry for %s has expired", ghr.redactDomain(domain))
+		if len(msg.Answer) > 0 {
+			domain := msg.Answer[0].Header().Name
+			log.Tracef("Entry for %s has expired", ghr.redactDomain(domain))
+		}
 	}
 }
 
