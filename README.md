@@ -100,13 +100,12 @@ go build .
 goreleaser release --rm-dist --snapshot
 ```
 
-
 ## Dependencies
 ### Buildtime
 | Library                                                     | License | Purpose                                      |
 | -------                                                     | ------- | -------                                      |
 | [Sirupsen/Logrus](https://github.com/Sirupsen/logrus)       | MIT     | Pretty Logging                               |
-| [urfave/cli/v2](https://github.com/urfave/cli/v2)            | MIT     | CLI args parsing, configuration file reading |
+| [urfave/cli/v2](https://github.com/urfave/cli/v2)           | MIT     | CLI args parsing, configuration file reading |
 | [miekg/dns](https://github.com/miekg/dns)                   | BSD-3   | DNS stuff                                    |
 | [ReneKroon/ttlcache](https://github.com/ReneKroon/ttlcache) | MIT     | Caching DNS responses for faster lookup      |
 
@@ -116,51 +115,75 @@ goreleaser release --rm-dist --snapshot
 - Systemd is recommended, but you can absolutely run it without.
 
 ## TODO
-- [ ] Embed build information
-- [ ] Embed dependency licenses
+- [ ] Known issues
+  - [ ] application does not load configuration file unless `--config` is provided
+  - [ ] The documentation is pretty crap overall
+  - [ ] deb/rpm packages currently don't work
+  - [ ] Code organization could be better. Split the handler out from the resolver.
+- [ ] Build System
+  - [ ] Embed dependencies' license info (blocked by [this](https://github.com/google/go-licenses/pull/79))
+  - [ ] Implement semantic versioning
+  - [ ] Embed build information (git hash, build version)
+  - [ ] Print version information at startup
+  - [ ] Add version information to http client user agent
+  - [ ] Builds using GitHub actions
+  - [ ] deb package
+    - [ ] cacert dependency
+    - [ ] systemd recommendation
+    - [ ] Install / Remove scripts
+    - [ ] confirm support for raspberry pi
+  - [ ] rpm package
+    - [ ] cacert dependency
+    - [ ] systemd recommendation
+    - [ ] Install / Remove scripts
 - [ ] Use configured upstream DNS servers
   - [x] Config file entry
   - [ ] Actually use them
+  - [ ] Move DNS client to a place where it can be reused
 - [ ] Bind to interfaces better
   - [ ] Optionally List in config file
   - [ ] Bind to all by default
   - [ ] Don't bind to 127.0.0.53 to prevent clashing with systemd
 - [ ] Parse hosts file format better
-- [ ] move DNS client to a place where it can be reused
-- [ ] DNS over TLS for Android Private DNS
+- [ ] DNS over TLS for Android and iOS private DNS
   - [ ] watch (inotify?) for updated TLS certs, automatically reload
-- [x] Download blocklists
-  - [x] Use configured upstream DNS to make these requests 
-  - [x] Set a User Agent
-- [x] Cache DNS Requests
-  - [x] Cache eviction
 - [ ] Refresh blocklists periodically
-- [ ] systemd unit
-  - [ ] PID File
+  - [ ] Config file entry 
+  - [ ] timed goroutine
+- [ ] systemd integration
+  - [x] Systemd unit 
+  - [ ] PID File in systemd unit
   - [ ] dbus liveness check
   - [ ] journald integration?
-- [ ] Reload / SIGHUP handler
-  - [ ] Reload configuration
-  - [ ] Reload TLS certs
-  - [ ] Purge DNS cache
-  - [ ] Reload Blocklists
-- [ ] deb package
-  - [ ] cacert dependency
-  - [ ] systemd recommendation
-- [ ] rpm package
-  - [ ] cacert dependency
-  - [ ] systemd recommendation
-- [ ] Github Builds
+  - [ ] Write documentation for how to run it without systemd
+  - [ ] Reload / SIGHUP handler
+    - [ ] Reload configuration
+    - [ ] Reload TLS certs
+    - [ ] Purge DNS cache
+    - [ ] Reload Blocklists
 - [ ] Metrics
   - [ ] Number of Blocked requests vs Number of Allowed Requests
   - [ ] Cache hits vs cache misses (ttlcache provides this)
   - [ ] Duration of DNS responses based off of blocked/cached/resolved
   - [ ] Cache size (ignoring blocked hosts)
-- [ ] Include license info for dependencies
-- [x] Handle A, AAAA, and other records gracefully
-  - ~~Right now a cached A record could prevent the successful resolution of AAAA, TXT, MX, etc.~~ 
 - [ ] DNSSec
   - [ ] Validation
   - [ ] Forwarding
+- [ ] IPv6 support
+  - [x] Resolve AAAA records
+  - [ ] Support queries/replies on IPv6
+  - [ ] Support upstream IPv6 DNS servers
+- [ ] Performance concerns
+  - [ ] Check for race conditions
+  - [ ] Not sure if the underlying ttlcache is concurrency-safe or not
+  - [ ] Should probably perf test with gatling or something
+  - [ ] Should check for memory leaks and too many gc runs
 - [ ] Easy blocklist set up (eg use Steve Black's list by default)
 - [ ] Easy configuration with env vars & [Steven Black's lists](https://github.com/StevenBlack/hosts)
+- [x] Handle A, AAAA, and other records gracefully
+  - ~~Right now a cached A record could prevent the successful resolution of AAAA, TXT, MX, etc.~~
+- [x] Download blocklists
+  - [x] Use configured upstream DNS to make these requests
+  - [x] Set a User Agent
+- [x] Cache DNS Requests
+  - [x] Cache eviction
