@@ -106,7 +106,7 @@ goreleaser release --rm-dist --snapshot
 | Library                                                     | License | Purpose                                      |
 | -------                                                     | ------- | -------                                      |
 | [Sirupsen/Logrus](https://github.com/Sirupsen/logrus)       | MIT     | Pretty Logging                               |
-| [urfave/cli]("https://github.com/urfave/cli/v2")            | MIT     | CLI args parsing, configuration file reading |
+| [urfave/cli/v2](https://github.com/urfave/cli/v2)            | MIT     | CLI args parsing, configuration file reading |
 | [miekg/dns](https://github.com/miekg/dns)                   | BSD-3   | DNS stuff                                    |
 | [ReneKroon/ttlcache](https://github.com/ReneKroon/ttlcache) | MIT     | Caching DNS responses for faster lookup      |
 
