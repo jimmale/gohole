@@ -120,6 +120,7 @@ goreleaser release --rm-dist --snapshot
   - [ ] The documentation is pretty crap overall
   - [ ] deb/rpm packages currently don't work
   - [ ] Code organization could be better. Split the handler out from the resolver.
+  - [ ] CLI Library isn't configured to do command completion yet
 - [ ] Build System
   - [ ] Embed dependencies' license info (blocked by [this](https://github.com/google/go-licenses/pull/79))
   - [ ] Implement semantic versioning
