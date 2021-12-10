@@ -11,7 +11,19 @@ import (
 	"os"
 )
 
+const defaultConfigFilePath = "/etc/gohole/gohole.toml"
+
 func main() {
+
+	// Check to see if there's a config file in the default location
+	// This is needed to set the cli.Boolflag below to emulate a --config cli argument
+	var defaultConfigFileExists bool
+	_, fileStatErr := os.Stat(defaultConfigFilePath)
+	if fileStatErr == nil {
+		defaultConfigFileExists = true
+	} else {
+		defaultConfigFileExists = false
+	}
 
 	var defaultDns = cli.NewStringSlice("1.1.1.1", "1.0.0.1")
 
@@ -127,10 +139,10 @@ func main() {
 			Required:    false,
 			Hidden:      false,
 			TakesFile:   false,
-			Value:       "/etc/gohole/gohole.toml",
+			Value:       defaultConfigFilePath,
 			DefaultText: "",
 			Destination: nil,
-			HasBeenSet:  false,
+			HasBeenSet:  defaultConfigFileExists,
 		},
 	}
 

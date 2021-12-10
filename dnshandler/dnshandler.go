@@ -199,7 +199,6 @@ func (ghr *GoholeResolver) getLoaderFunction() func(string) (data interface{}, t
 			newTTL = 3 * time.Second
 		}
 
-
 		log.Tracef("⏰ Entry for %s expires at %s", ghr.redactDomain(domain), time.Now().Add(newTTL).Format("2006.01.02 15:04:05.000 Z0700"))
 		return upstreamResponse, newTTL, nil
 	}
@@ -292,7 +291,7 @@ func (ghr *GoholeResolver) redactDomain(domain string) string {
 	}
 }
 
-func (ghr *GoholeResolver) reportStats(){
+func (ghr *GoholeResolver) reportStats() {
 	metrics := ghr.DNSCache.GetMetrics()
 	hits := float64(metrics.Hits)
 	misses := float64(metrics.Misses)

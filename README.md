@@ -116,7 +116,7 @@ goreleaser release --rm-dist --snapshot
 
 ## TODO
 - [ ] Known issues
-  - [ ] application does not load configuration file unless `--config` is provided
+  - [x] ~~application does not load configuration file unless `--config` is provided~~
   - [ ] The documentation is pretty crap overall
   - [ ] deb/rpm packages currently don't work
   - [ ] Code organization could be better. Split the handler out from the resolver.
