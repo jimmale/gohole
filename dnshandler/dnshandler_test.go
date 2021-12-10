@@ -71,8 +71,9 @@ func TestGoHoleResolver_DontConfuseRecordTypes(t *testing.T) {
 	}
 }
 
-// TestRecursivelyResolve tests to make sure that a cache miss results in a recursive resolution
+// TestGoholeResolver_RecursivelyResolve tests to make sure that a cache miss results in a recursive resolution
 func TestGoholeResolver_RecursivelyResolve(t *testing.T) {
+	// Setup
 	QueryForARecord := new(dns.Msg)
 	QueryForARecord.Id = dns.Id()
 	QueryForARecord.Question = make([]dns.Question, 1)
@@ -84,7 +85,10 @@ func TestGoholeResolver_RecursivelyResolve(t *testing.T) {
 
 	myResolver := NewGoholeResolver(nil)
 
+	// Action
 	response := myResolver.Resolve(QueryForARecord)
+
+	// Postcondition
 	if response == nil {
 		t.Errorf("didn't get a response")
 	}
@@ -94,9 +98,10 @@ func TestGoholeResolver_RecursivelyResolve(t *testing.T) {
 	}
 }
 
-// TestResolveFromCache tests to make sure that a cache resolution results in the correct DNS exchange id being set on
+// TestGoholeResolver_ResolveFromCache tests to make sure that a cache resolution results in the correct DNS exchange id being set on
 // the second DNS response
 func TestGoholeResolver_ResolveFromCache(t *testing.T) {
+	// Setup
 	FirstQueryForARecord := new(dns.Msg)
 	FirstQueryForARecord.Id = 42 // DNS Exchange ID
 	FirstQueryForARecord.Question = make([]dns.Question, 1)
@@ -117,20 +122,22 @@ func TestGoholeResolver_ResolveFromCache(t *testing.T) {
 
 	myResolver := NewGoholeResolver(nil)
 
+	// Precondition
 	firstResponse := myResolver.Resolve(FirstQueryForARecord)
-
 	if firstResponse.Id != FirstQueryForARecord.Id {
 		t.Errorf("First Query: Returned query ID (%d) didn't match the original query (%d)", firstResponse.Id, FirstQueryForARecord.Id)
 	}
 
+	// Action
 	secondResponse := myResolver.Resolve(SecondQueryForARecord)
 
+	// Postcondition
 	if secondResponse.Id != SecondQueryForARecord.Id {
 		t.Errorf("Second Query: Returned query ID (%d) didn't match the original query (%d)", secondResponse.Id, SecondQueryForARecord.Id)
 	}
 }
 
-// TestNewGoholeResolver tests to make sure that a new GoHole resolver is configured correctly
+// TestGoholeResolver_NewGoholeResolver tests to make sure that a new GoHole resolver is configured correctly
 func TestGoholeResolver_NewGoholeResolver(t *testing.T) {
 	// Action
 	myResolver := NewGoholeResolver(nil) // TODO try this with a value for c
