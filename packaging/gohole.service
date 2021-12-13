@@ -9,8 +9,14 @@ ExecStart=/usr/local/bin/gohole
 KillSignal=SIGKILL
 Restart=on-failure
 RestartSec=3s
+
+# Prevent the application from using sudo or setuid applications
 NoNewPrivileges=true
+
+# Dynamically create a random non-privileged user account for this to run under
 DynamicUser=true
+
+# Let the application bind to low ports (TCP 53, UDP 53, TCP 853)
 AmbientCapabilities=CAP_NET_BIND_SERVICE
 
 ## https://www.ctrl.blog/entry/systemd-service-hardening.html

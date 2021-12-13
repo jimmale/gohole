@@ -7,7 +7,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"github.com/urfave/cli/v2/altsrc"
-	_ "net/http/pprof"
 	"os"
 )
 
@@ -147,10 +146,11 @@ func main() {
 	}
 
 	app := &cli.App{
-		Name:   "gohole",
-		Usage:  "A GoLang DNS-based ad blocker",
-		Action: mainAction,
-		Flags:  flags,
+		Name:                 "gohole",
+		Usage:                "A GoLang DNS-based ad blocker",
+		Action:               mainAction,
+		Flags:                flags,
+		EnableBashCompletion: true,
 	}
 	app.Before = altsrc.InitInputSourceWithContext(app.Flags, altsrc.NewTomlSourceFromFlagFunc("config"))
 	err := app.Run(os.Args)
