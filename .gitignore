@@ -56,3 +56,6 @@ vendor/
 # .idea/misc.xml
 # *.ipr
 dist/
+
+
+licensing/my-licenses
