@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/jimmale/gohole/dnshandler"
+	"github.com/jimmale/gohole/licensing"
 	"github.com/jimmale/gohole/utils"
 	"github.com/miekg/dns"
 	log "github.com/sirupsen/logrus"
@@ -143,6 +144,20 @@ func main() {
 			Destination: nil,
 			HasBeenSet:  defaultConfigFileExists,
 		},
+
+		&cli.BoolFlag{
+			Name:        "license",
+			Aliases:     nil,
+			Usage:       "print license info and exit",
+			EnvVars:     nil,
+			FilePath:    "",
+			Required:    false,
+			Hidden:      false,
+			Value:       false,
+			DefaultText: "",
+			Destination: nil,
+			HasBeenSet:  false,
+		},
 	}
 
 	app := &cli.App{
@@ -160,6 +175,12 @@ func main() {
 }
 
 func mainAction(c *cli.Context) error {
+
+	if c.Bool("license") {
+		licensing.PrintEmbeddedLicenses()
+		os.Exit(0)
+	}
+
 	log.SetFormatter(&log.TextFormatter{
 		ForceColors:               false,
 		DisableColors:             false,
