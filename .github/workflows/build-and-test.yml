@@ -16,11 +16,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.16
+          go-version: 1.17
+
+      - name: Make embedFS happy
+      - run: mkdir -p ./licensing/my-licenses/ && touch ./licensing/my-licenses/make_embedFS_happy
 
       - name: Build
         run: go build -v ./...
 
       - name: Test
         run: go test -v ./...
-        
