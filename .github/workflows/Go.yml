@@ -26,4 +26,3 @@ jobs:
 
       - name: Test
         run: mkdir -p ./licensing/my-licenses/ && touch ./licensing/my-licenses/make_embedFS_happy && go test -v ./...
-
