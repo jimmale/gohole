@@ -131,7 +131,7 @@ goreleaser release --rm-dist --snapshot
   - [ ] Embed build information (git hash, build version)
   - [ ] Print version information at startup
   - [ ] Add version information to http client user agent
-  - [ ] Builds using GitHub actions
+  - [ ] Builds using GitHub actions (WIP)
   - [ ] deb package
     - [ ] cacert dependency
     - [ ] systemd recommendation
