@@ -204,6 +204,7 @@ func mainAction(c *cli.Context) error {
 	log.Println("Ready.")
 
 	bindAddr := utils.GetLocalIP() + ":53"
-	log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", myHandler).Error())
+	dns.
+		log.Fatalf(dns.ListenAndServe(bindAddr, "udp4", myHandler).Error())
 	return nil
 }
