@@ -86,7 +86,7 @@ GLOBAL OPTIONS:
 
 ## Building
 ### Requirements:
-- GoLang 1.16+
+- GoLang 1.19+
 - [Goreleaser](https://goreleaser.com/) (optional, to build linux packages)
 
 ### Building from source

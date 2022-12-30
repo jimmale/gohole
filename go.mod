@@ -1,6 +1,6 @@
 module github.com/jimmale/gohole
 
-go 1.16
+go 1.19
 
 require (
 	github.com/ReneKroon/ttlcache/v2 v2.11.0
