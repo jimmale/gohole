@@ -86,16 +86,14 @@ GLOBAL OPTIONS:
 
 ## Building
 ### Requirements:
-- GoLang 1.16+
+- GoLang 1.19+
 - [Goreleaser](https://goreleaser.com/) (optional, to build linux packages)
 
 ### Building from source
 ```shell
 go test ./...
 
-mkdir -p ./licensing/my-licenses
-touch ./licensing/my-licenses/make_embedFS_happy
-go-licenses save github.com/jimmale/gohole --force --save_path="licensing/my-licenses"
+
 go build .
 ```
 
@@ -126,7 +124,7 @@ goreleaser release --rm-dist --snapshot
   - [ ] Code organization could be better. Split the handler out from the resolver.
   - [ ] CLI Library isn't configured to do command completion yet
 - [ ] Build System
-  - [x] Embed dependencies' license info (blocked by [this](https://github.com/google/go-licenses/pull/79))
+  - [ ] Embed dependencies' license info (blocked by [this](https://github.com/google/go-licenses/pull/79))
   - [ ] Implement semantic versioning
   - [ ] Embed build information (git hash, build version)
   - [ ] Print version information at startup
